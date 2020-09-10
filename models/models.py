@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.nn.init as init
 
 from models.pwcNet import PwcNet
-from models.gridNet import IncepGridNet
+# from models.gridNet import IncepGridNet
 
 import math
 import pdb
@@ -36,7 +36,7 @@ class UNet1(nn.Module):
 		class Decoder(nn.Module):
 			def __init__(self, in_nc, out_nc, stride, k_size=3, pad=1, tanh=False):
 				super(Decoder, self).__init__()
-				
+
 				self.seq = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, in_nc, kernel_size=k_size, stride=stride, padding=0),
@@ -48,7 +48,7 @@ class UNet1(nn.Module):
 					self.activ = nn.Tanh()
 				else:
 					self.activ = nn.LeakyReLU(0.2)
-				
+
 				self.GateConv = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, in_nc, kernel_size=k_size, stride=stride, padding=0),
@@ -119,7 +119,7 @@ class DIFNet(nn.Module):
 				tensorInput = torch.cat([ tensorInput, self.tensorPartial ], 1)
 				tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.size(3) - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.size(2) - 1.0) / 2.0) ], 1)
 
-				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow*scale).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros')
+				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow*scale).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=True)
 
 				tensorMask = tensorOutput[:, -1:, :, :]; tensorMask[tensorMask > 0.999] = 1.0; tensorMask[tensorMask < 1.0] = 0.0
 
@@ -249,7 +249,7 @@ class UNet2(nn.Module):
 		class Decoder(nn.Module):
 			def __init__(self, in_nc, out_nc, stride, k_size=3, pad=1, tanh=False):
 				super(Decoder, self).__init__()
-				
+
 				self.seq = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, in_nc, kernel_size=k_size, stride=stride, padding=0),
@@ -261,7 +261,7 @@ class UNet2(nn.Module):
 					self.activ = nn.Tanh()
 				else:
 					self.activ = nn.ReLU()
-				
+
 				self.GateConv = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, in_nc, kernel_size=k_size, stride=stride, padding=0),
@@ -332,7 +332,7 @@ class DIFNet2(nn.Module):
 				tensorInput = torch.cat([ tensorInput, self.tensorPartial ], 1)
 				tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.size(3) - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.size(2) - 1.0) / 2.0) ], 1)
 
-				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow*scale).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros')
+				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow*scale).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=True)
 
 				tensorMask = tensorOutput[:, -1:, :, :]; tensorMask[tensorMask > 0.999] = 1.0; tensorMask[tensorMask < 1.0] = 0.0
 
@@ -461,7 +461,7 @@ class UNetFlow(nn.Module):
 		class Decoder(nn.Module):
 			def __init__(self, in_nc, out_nc, stride, k_size=3, pad=1, tanh=False):
 				super(Decoder, self).__init__()
-				
+
 				self.seq = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, out_nc, kernel_size=k_size, stride=stride, padding=0)
@@ -471,7 +471,7 @@ class UNetFlow(nn.Module):
 					self.activ = nn.Tanh()
 				else:
 					self.activ = nn.LeakyReLU(0.2)
-				
+
 				self.GateConv = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, out_nc, kernel_size=k_size, stride=stride, padding=0),
@@ -541,7 +541,7 @@ class UNet3(nn.Module):
 		class Decoder(nn.Module):
 			def __init__(self, in_nc, out_nc, stride, k_size=3, pad=1, tanh=False):
 				super(Decoder, self).__init__()
-				
+
 				self.seq = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, out_nc, kernel_size=k_size, stride=stride, padding=0)
@@ -551,7 +551,7 @@ class UNet3(nn.Module):
 					self.activ = nn.Tanh()
 				else:
 					self.activ = nn.ReLU()
-				
+
 				self.GateConv = nn.Sequential(
 					nn.ReflectionPad2d(pad),
 					nn.Conv2d(in_nc, out_nc, kernel_size=k_size, stride=stride, padding=0),
@@ -620,7 +620,7 @@ class DIFNet3(nn.Module):
 				tensorInput = torch.cat([ tensorInput, self.tensorPartial ], 1)
 				tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.size(3) - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.size(2) - 1.0) / 2.0) ], 1)
 
-				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow*scale).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros')
+				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow*scale).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=True)
 
 				tensorMask = tensorOutput[:, -1:, :, :]; tensorMask[tensorMask > 0.999] = 1.0; tensorMask[tensorMask < 1.0] = 0.0
 

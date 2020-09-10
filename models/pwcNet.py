@@ -154,7 +154,7 @@ class PwcNet(torch.nn.Module):
 				tensorInput = torch.cat([ tensorInput, self.tensorPartial ], 1)
 				tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.size(3) - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.size(2) - 1.0) / 2.0) ], 1)
 
-				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros')
+				tensorOutput = torch.nn.functional.grid_sample(input=tensorInput, grid=(self.tensorGrid + tensorFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=True)
 
 				tensorMask = tensorOutput[:, -1:, :, :]; tensorMask[tensorMask > 0.999] = 1.0; tensorMask[tensorMask < 1.0] = 0.0
 
@@ -380,7 +380,7 @@ if __name__ == '__main__':
 	scale = 0.5
 	mesh = numpy.array(numpy.meshgrid(numpy.linspace(-1,1,1024), numpy.linspace(-1,1,436)))
 	mesh = torch.FloatTensor(mesh)
-	outwarp = F.grid_sample(tensorInputSecond[None,:,:,:], mesh.permute(1, 2, 0)[None,:,:,:] + tensorOutput*scale)
+	outwarp = F.grid_sample(tensorInputSecond[None,:,:,:], mesh.permute(1, 2, 0)[None,:,:,:] + tensorOutput*scale, align_corners=True)
 	outwarp = outwarp.squeeze().permute(1, 2, 0)
 
 	plt.imshow(outwarp.numpy())
